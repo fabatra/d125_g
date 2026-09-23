@@ -1,4 +1,4 @@
-n<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -415,7 +415,6 @@ Se V = 8 e F = 6:
     document.getElementById("res-name").innerText = studentName;
     document.getElementById("res-class").innerText = studentClass;
     
-    // Preenche a caixa do e-mail no resultado com o que foi preenchido no início
     document.getElementById("res-email-input").value = studentEmail;
 
     const finalScore = score.toFixed(1);
@@ -489,8 +488,8 @@ Se V = 8 e F = 6:
       btn.disabled = true;
     }
 
-    // 🔴 COLE AQUI A URL GERADA NA IMPLANTAÇÃO DO SEU GOOGLE APPS SCRIPT (terminada em /exec):
-    const scriptUrl = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+    // URL oficial de execução do seu Google Apps Script (/exec)
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbwh1Dkcv-HaByydsupR8hQDc6Pk6lGGLpOtiCr0K_D0ri4769ueQ2HOtPMcvZaDgRg7/exec";
 
     const reportElement = document.getElementById("screen-result").innerHTML;
 
@@ -534,16 +533,6 @@ Se V = 8 e F = 6:
 
     const formattedName = studentName.replace(/\s+/g, "_");
     document.title = "Prova_Corrigida_" + formattedName + "_" + studentClass;
-
-    if (scriptUrl === "SUA_URL_DO_APPS_SCRIPT_AQUI") {
-      alert("Substitua 'SUA_URL_DO_APPS_SCRIPT_AQUI' no código HTML pelo link do seu Google Apps Script para ativar o envio por e-mail e salvamento no Drive.");
-      if (btn) {
-        btn.innerText = "✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)";
-        btn.disabled = false;
-      }
-      window.print();
-      return;
-    }
 
     fetch(scriptUrl, {
       method: "POST",
