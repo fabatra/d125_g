@@ -222,7 +222,7 @@ Se V = 8 e F = 6:
     </div>
 
     <div style="margin-top: 25px;" class="no-print">
-      <button id="btn-save-pdf" class="btn" onclick="savePdf()">📄 Salvar no Google Drive e Gerar PDF</button>
+      <button id="btn-save-pdf" class="btn" onclick="savePdf()">📄 Salvar no Google Drive (PDF)</button>
       <button class="btn btn-secondary" onclick="location.reload()">🔄 Refazer Avaliação</button>
     </div>
   </div>
@@ -451,20 +451,25 @@ Se V = 8 e F = 6:
     pedContainer.innerHTML = pedHtml;
   }
 
-  // FUNÇÃO DE INTEGRAÇÃO COM O GOOGLE DRIVE VIA GOOGLE APPS SCRIPT
+  // SOLICITA O LINK DA PASTA DO GOOGLE DRIVE E ENVIA O CONTEÚDO PARA CONVERSÃO EM PDF
   function savePdf() {
+    const driveUrl = prompt("Cole aqui o link (URL) da sua pasta do Google Drive onde deseja salvar a prova em PDF:");
+    
+    if (driveUrl === null) {
+      return; // Ação cancelada pelo usuário
+    }
+
     const btn = document.getElementById("btn-save-pdf");
     if (btn) {
-      btn.innerText = "⏳ Gerando e enviando PDF para o Drive...";
+      btn.innerText = "⏳ Enviando para a sua pasta do Drive...";
       btn.disabled = true;
     }
 
-    // Cole aqui a URL gerada na implantação do seu Google Apps Script:
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbwh1Dkcv-HaByydsupR8hQDc6Pk6lGGLpOtiCr0K_D0ri4769ueQ2HOtPMcvZaDgRg7/exec";
+    // Cole abaixo a URL gerada ao implantar seu Google Apps Script (terminada em /exec):
+    const scriptUrl = "SUA_URL_DO_APPS_SCRIPT_AQUI";
 
     const reportElement = document.getElementById("screen-result").innerHTML;
 
-    // Monta o documento HTML que o Google Apps Script converterá em PDF
     const fullHtml = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -497,16 +502,16 @@ Se V = 8 e F = 6:
     const payload = {
       aluno: studentName,
       turma: studentClass,
+      folderUrl: driveUrl,
       htmlContent: fullHtml
     };
 
     const formattedName = studentName.replace(/\s+/g, "_");
     document.title = "Prova_Corrigida_" + formattedName + "_" + studentClass;
 
-    // Se o professor ainda não configurou o link da API
-    if (scriptUrl === "https://script.google.com/macros/s/AKfycbwh1Dkcv-HaByydsupR8hQDc6Pk6lGGLpOtiCr0K_D0ri4769ueQ2HOtPMcvZaDgRg7/exec") {
+    if (scriptUrl === "SUA_URL_DO_APPS_SCRIPT_AQUI") {
       if (btn) {
-        btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
+        btn.innerText = "📄 Salvar no Google Drive (PDF)";
         btn.disabled = false;
       }
       window.print();
@@ -516,19 +521,19 @@ Se V = 8 e F = 6:
     fetch(scriptUrl, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert("✅ Prova corrigida enviada com sucesso em formato PDF para a pasta do Google Drive do professor!");
+      alert("✅ Prova enviada com sucesso em formato PDF para a pasta do Google Drive informada!");
       if (btn) {
-        btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
+        btn.innerText = "📄 Salvar no Google Drive (PDF)";
         btn.disabled = false;
       }
       window.print();
     }).catch(err => {
-      alert("Não foi possível conectar ao Drive automaticamente. A caixa de download local do PDF será aberta.");
+      alert("Ocorreu uma falha ao enviar diretamente para o Drive. A caixa de download/impressão local será aberta.");
       if (btn) {
-        btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
+        btn.innerText = "📄 Salvar no Google Drive (PDF)";
         btn.disabled = false;
       }
       window.print();
