@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Interativo: Poliedros e Relação de Euler (D125_M)</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #2563eb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #cbd5e1;
+      --success: #15803d;
+      --error: #b91c1c;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+    .container { max-width: 800px; width: 100%; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    
+    h1 { color: var(--primary); font-size: 1.5rem; text-align: center; margin-bottom: 5px; }
+    p.subtitle { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 0; margin-bottom: 25px; }
+    
+    .form-group { margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-bottom: 6px; }
+    input[type="text"], select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+    
+    .btn { background: var(--primary-light); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.2s; }
+    .btn:hover { background: var(--primary); }
+    .btn-secondary { background: #64748b; margin-top: 10px; }
+    .btn-secondary:hover { background: #475569; }
+
+    .revision-box { background: #eff6ff; border-left: 5px solid var(--primary-light); padding: 18px; border-radius: 8px; margin-bottom: 20px; display: none; }
+    .revision-box h3 { margin-top: 0; color: var(--primary); font-size: 1.15rem; }
+
+    .example-card {
+      background: #ffffff;
+      border: 1px solid #93c5fd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 12px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .calc-block {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+      color: #0f172a;
+    }
+
+    .option-btn { background: #f1f5f9; border: 1px solid var(--border); padding: 12px; margin-bottom: 8px; border-radius: 6px; width: 100%; text-align: left; cursor: pointer; font-size: 1rem; }
+    .option-btn:hover { background: #e2e8f0; }
+    .option-btn.selected { background: #dbeafe; border-color: var(--primary-light); font-weight: bold; }
+
+    .feedback-box { padding: 15px; border-radius: 6px; margin-top: 15px; font-size: 0.95rem; line-height: 1.5; display: none; }
+    .feedback-box.correct { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+    .feedback-box.incorrect { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+    .step { display: none; }
+    .step.active { display: block; }
+
+    .progress { height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--primary-light); width: 0%; transition: width 0.3s; }
+
+    /* Estilos da Prova Corrigida do Professor */
+    .report-header { border-bottom: 2px solid var(--primary); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .report-header-title { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+    .report-stamp { border: 2px solid var(--primary); color: var(--primary); padding: 5px 12px; font-weight: bold; font-size: 0.85rem; border-radius: 4px; text-align: center; }
+
+    .student-card { background: #f1f5f9; border: 1px solid var(--border); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .student-card p { margin: 0; font-size: 0.95rem; }
+
+    .corrected-item { border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #ffffff; }
+    .corrected-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+    .status-badge.certo { background: #dcfce7; color: var(--success); border: 1px solid #86efac; }
+    .status-badge.errado { background: #fee2e2; color: var(--error); border: 1px solid #fca5a5; }
+
+    .pedagogical-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin-top: 25px; }
+    .pedagogical-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
+
+    @media print {
+      .btn, .no-print, .progress { display: none !important; }
+      body { background: white; padding: 0; color: #000; }
+      .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
+      .corrected-item { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- TELA INICIAL: IDENTIFICAÇÃO DO ALUNO E TURMA -->
+  <div id="screen-start" class="step active">
+    <h1>Avaliação D125_M: Poliedros</h1>
+    <p class="subtitle">Identificar a relação entre o número de vértices, faces e/ou arestas de poliedros</p>
+    
+    <div class="form-group">
+      <label for="student-name">Nome Completo do Aluno:</label>
+      <input type="text" id="student-name" placeholder="Digite seu nome completo">
+    </div>
+
+    <div class="form-group">
+      <label for="student-class">Turma:</label>
+      <select id="student-class">
+        <option value="">-- Selecione sua turma --</option>
+        <option value="3M1">3M1</option>
+        <option value="3M2">3M2</option>
+        <option value="3M3">3M3</option>
+      </select>
+    </div>
+
+    <button class="btn no-print" onclick="toggleRevision()">📖 Abrir Revisão Teórica e Exemplo Resolvido</button>
+    
+    <div id="revision-content" class="revision-box">
+      <h3>Resumo Teórico: Relação de Euler</h3>
+      <p>Em qualquer poliedro convexo simples (como um cubo, caixas ou pirâmides), vale a regra:</p>
+      <p style="font-size: 1.25rem; text-align: center; color: var(--primary); background: #ffffff; padding: 10px; border-radius: 6px; border: 1px solid #93c5fd;">
+        <b>V - A + F = 2</b>
+      </p>
+      <ul>
+        <li><b>Vértices (V):</b> As "pontas" ou cantos do poliedro.</li>
+        <li><b>Arestas (A):</b> As "linhas" ou palitos que ligam as pontas.</li>
+        <li><b>Faces (F):</b> As "paredes" ou superfícies planas do poliedro.</li>
+      </ul>
+
+      <div class="example-card">
+        <h4 style="margin-top: 0; color: var(--primary);">📌 EXEMPLO RESOLVIDO PASSO A PASSO (Para Relembrar)</h4>
+        <p><b>Enunciado Exemplo:</b> Um poliedro possui <b>8 vértices (V = 8)</b> e <b>6 faces (F = 6)</b>. Quantas <b>arestas (A)</b> ele tem?</p>
+        
+        <p><b>Como resolver passo a passo:</b></p>
+        <div class="calc-block">
+1) Anotar os dados que o exercício deu:
+   • Vértices (V) = 8
+   • Faces (F) = 6
+   • Arestas (A) = ? (o que queremos descobrir)
+
+2) Escrever a fórmula de Euler:
+   V - A + F = 2
+
+3) Substituir os números conhecidos na fórmula:
+   8 - A + 6 = 2
+
+4) Somar os números normais (8 + 6 = 14):
+   14 - A = 2
+
+5) Pensar: "14 menos qual número é igual a 2?":
+   A = 14 - 2
+   A = 12 arestas  ✅
+        </div>
+        <p style="margin-bottom: 0; font-size: 0.85rem; color: #475569;"><i>💡 Dica: Sempre faça a conta na vertical, linha por linha, para não confundir os sinais!</i></p>
+      </div>
+    </div>
+
+    <button class="btn" style="margin-top: 15px;" onclick="startQuiz()">Iniciar Quiz</button>
+  </div>
+
+  <!-- TELA DO QUIZ INTERATIVO -->
+  <div id="screen-quiz" class="step">
+    <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+    
+    <div class="no-print" style="margin-bottom: 15px; text-align: right;">
+      <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 0.85rem;" onclick="toggleQuizRevision()">📖 Revisão & Exemplo</button>
+    </div>
+
+    <div id="quiz-revision" class="revision-box">
+      <h3>Lembrete: Relação de Euler</h3>
+      <p>Fórmula: <b>V - A + F = 2</b></p>
+      <div class="calc-block">
+Exemplo Rápido:
+Se V = 8 e F = 6:
+  8 - A + 6 = 2
+  14 - A = 2  =>  A = 12 arestas
+      </div>
+    </div>
+
+    <h3 id="question-title">Questão 1</h3>
+    <p id="question-text" style="font-size: 1.05rem; line-height: 1.5;"></p>
+    
+    <div id="options-container"></div>
+
+    <button id="btn-verify" class="btn no-print" style="margin-top: 15px;" onclick="verifyAnswer()">Verificar Resposta</button>
+    
+    <div id="feedback" class="feedback-box"></div>
+
+    <button id="btn-next" class="btn no-print" style="margin-top: 15px; display: none;" onclick="nextQuestion()">Próxima Questão ➔</button>
+  </div>
+
+  <!-- TELA DE RESULTADO / PROVA CORRIGIDA PELO PROFESSOR -->
+  <div id="screen-result" class="step">
+    <div class="report-header">
+      <div>
+        <div class="report-header-title">AVALIAÇÃO DE MATEMÁTICA - DESCRITOR D125_M</div>
+        <small style="color: #64748b;">Relação de Euler em Poliedros Convexos (V - A + F = 2)</small>
+      </div>
+      <div class="report-stamp">
+        PROVA CORRIGIDA<br><small id="report-date"></small>
+      </div>
+    </div>
+
+    <div class="student-card">
+      <p><b>Aluno(a):</b> <span id="res-name"></span></p>
+      <p><b>Turma:</b> <span id="res-class"></span></p>
+      <p><b>Nota Final:</b> <span id="res-score-pts" style="font-weight: bold; color: var(--primary);"></span> / 5,0 (<span id="res-percent"></span>%)</p>
+    </div>
+
+    <h3 style="color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Correção Detalhada das Questões</h3>
+    <div id="corrected-questions-list"></div>
+
+    <div class="pedagogical-box">
+      <h3>📋 Parecer Pedagógico e Orientações do Professor</h3>
+      <div id="pedagogical-content"></div>
+    </div>
+
+    <div style="margin-top: 25px;" class="no-print">
+      <button id="btn-save-pdf" class="btn" onclick="savePdf()">📄 Salvar no Google Drive e Gerar PDF</button>
+      <button class="btn btn-secondary" onclick="location.reload()">🔄 Refazer Avaliação</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const questions = [
+    {
+      id: 1,
+      code: "ITEM 1 - (M120116B1)",
+      text: "O dodecaedro regular é um poliedro formado por 12 faces pentagonais.<br><b>Quantos vértices tem esse poliedro?</b>",
+      options: ["A) 16.", "B) 20.", "C) 30.", "D) 50.", "E) 60."],
+      correct: 1, // B) 20
+      calc: "1) Contagem das Arestas (A):\n   12 faces pentagonais = 12 × 5 = 60 lados\n   A = 60 / 2\n   A = 30 arestas\n\n2) Relação de Euler na vertical:\n   V - A + F = 2\n   V - 30 + 12 = 2\n   V - 18 = 2\n   V = 2 + 18\n   V = 20 vértices",
+      topic: "Contagem preliminar de arestas a partir das faces pentagonais e isolamento do número de vértices."
+    },
+    {
+      id: 2,
+      code: "ITEM 2 - (PAMA11025AC)",
+      text: "Um poliedro convexo tem 6 vértices. De cada vértice partem 4 arestas.<br><b>Quantas faces tem esse poliedro?</b>",
+      options: ["A) 8.", "B) 10.", "C) 12.", "D) 16.", "E) 20."],
+      correct: 0, // A) 8
+      calc: "1) Contagem das Arestas (A):\n   6 vértices com 4 arestas cada\n   A = (6 × 4) / 2\n   A = 24 / 2\n   A = 12 arestas\n\n2) Relação de Euler na vertical:\n   V - A + F = 2\n   6 - 12 + F = 2\n   -6 + F = 2\n   F = 2 + 6\n   F = 8 faces",
+      topic: "Cálculo de arestas a partir de vértices de valência fixa e determinação do número de faces."
+    },
+    {
+      id: 3,
+      code: "ITEM 3 - (PAMA11133MS)",
+      text: "Sabendo que um poliedro convexo possui 4 faces e 6 arestas, podemos afirmar que o número de vértices é:",
+      options: ["A) 3.", "B) 4.", "C) 8.", "D) 10.", "E) 24."],
+      correct: 1, // B) 4
+      calc: "1) Dados fornecidos:\n   F = 4 | A = 6\n\n2) Relação de Euler na vertical:\n   V - A + F = 2\n   V - 6 + 4 = 2\n   V - 2 = 2\n   V = 2 + 2\n   V = 4 vértices",
+      topic: "Substituição direta de F e A na equação de Euler V - A + F = 2."
+    },
+    {
+      id: 4,
+      code: "ITEM 4 - (AMA - 2024)",
+      text: "Na exposição de arte de uma galeria, existe uma peça no formato de um poliedro convexo de 22 vértices e 50 arestas. As faces desse poliedro foram construídas com telas e foi colocada a foto de um artista diferente em cada tela. Quantas fotos foram colocadas, ao todo, nas faces desse poliedro?",
+      options: ["A) 26.", "B) 28.", "C) 30.", "D) 70.", "E) 72."],
+      correct: 2, // C) 30
+      calc: "1) Dados fornecidos:\n   V = 22 vértices | A = 50 arestas\n\n2) Relação de Euler na vertical:\n   V - A + F = 2\n   22 - 50 + F = 2\n   -28 + F = 2\n   F = 2 + 28\n   F = 30 faces (30 fotos)",
+      topic: "Interpretação de problema contextualizado correlacionando número de telas ao número de faces."
+    },
+    {
+      id: 5,
+      code: "ITEM 5 - (AMA - 2024)",
+      text: "Amanda é arquiteta e vai construir o molde de um poliedro convexo para incluir em uma maquete. Esse poliedro terá 40 vértices, 24 faces e, para fazer as arestas, Amanda vai usar palitos de picolé. Cada palito de picolé corresponderá a uma aresta. De quantos palitos de picolé Amanda irá precisar para construir esse molde?",
+      options: ["A) 18.", "B) 32.", "C) 62.", "D) 64.", "E) 66."],
+      correct: 2, // C) 62
+      calc: "1) Dados fornecidos:\n   V = 40 vértices | F = 24 faces\n\n2) Relação de Euler na vertical:\n   V - A + F = 2\n   40 - A + 24 = 2\n   64 - A = 2\n   A = 64 - 2\n   A = 62 arestas (62 palitos)",
+      topic: "Resolução de problema prático isolando a quantidade de Arestas (A) com números maiores."
+    }
+  ];
+
+  let currentIdx = 0;
+  let selectedOption = null;
+  let score = 0;
+  let studentName = "";
+  let studentClass = "";
+  let userAnswers = [];
+
+  function toggleRevision() {
+    const box = document.getElementById("revision-content");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+  }
+
+  function toggleQuizRevision() {
+    const box = document.getElementById("quiz-revision");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+  }
+
+  function startQuiz() {
+    studentName = document.getElementById("student-name").value.trim();
+    studentClass = document.getElementById("student-class").value;
+
+    if (!studentName || !studentClass) {
+      alert("Por favor, preencha seu nome e selecione sua turma antes de iniciar.");
+      return;
+    }
+
+    document.getElementById("screen-start").classList.remove("active");
+    document.getElementById("screen-quiz").classList.add("active");
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = questions[currentIdx];
+    selectedOption = null;
+    
+    document.getElementById("progress-bar").style.width = ((currentIdx / questions.length) * 100) + "%";
+    document.getElementById("question-title").innerText = q.code + " (Questão " + (currentIdx + 1) + " de 5)";
+    document.getElementById("question-text").innerHTML = q.text;
+    
+    const container = document.getElementById("options-container");
+    container.innerHTML = "";
+    
+    q.options.forEach((opt, index) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = opt;
+      btn.onclick = () => selectOption(index, btn);
+      container.appendChild(btn);
+    });
+
+    document.getElementById("feedback").style.display = "none";
+    document.getElementById("btn-verify").style.display = "block";
+    document.getElementById("btn-next").style.display = "none";
+  }
+
+  function selectOption(index, btn) {
+    document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    selectedOption = index;
+  }
+
+  function verifyAnswer() {
+    if (selectedOption === null) {
+      alert("Selecione uma opção antes de verificar.");
+      return;
+    }
+
+    const q = questions[currentIdx];
+    const feedback = document.getElementById("feedback");
+    
+    document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+    document.getElementById("btn-verify").style.display = "none";
+
+    const isCorrect = (selectedOption === q.correct);
+    userAnswers.push({
+      questionIdx: currentIdx,
+      chosenOption: selectedOption,
+      isCorrect: isCorrect
+    });
+
+    let calcHtml = '<div class="calc-block">' + q.calc + '</div>';
+
+    if (isCorrect) {
+      score++;
+      feedback.className = "feedback-box correct";
+      feedback.innerHTML = "<b>✔ Resposta Correta! (+1,0 pt)</b><br><b>Resolução Passo a Passo na Vertical:</b>" + calcHtml;
+    } else {
+      feedback.className = "feedback-box incorrect";
+      feedback.innerHTML = "<b>✖ Resposta Incorreta. (0,0 pt)</b><br>Sua resposta: <b>" + q.options[selectedOption] + "</b> | Gabarito correto: <b>" + q.options[q.correct] + "</b><br><b>Resolução Passo a Passo na Vertical:</b>" + calcHtml;
+    }
+
+    feedback.style.display = "block";
+    document.getElementById("btn-next").style.display = "block";
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < questions.length) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    document.getElementById("screen-quiz").classList.remove("active");
+    document.getElementById("screen-result").classList.add("active");
+
+    const now = new Date();
+    document.getElementById("report-date").innerText = now.toLocaleDateString('pt-BR');
+    document.getElementById("res-name").innerText = studentName;
+    document.getElementById("res-class").innerText = studentClass;
+    
+    const finalScore = score.toFixed(1);
+    document.getElementById("res-score-pts").innerText = finalScore.replace('.', ',');
+    const percent = Math.round((score / questions.length) * 100);
+    document.getElementById("res-percent").innerText = percent;
+
+    const listContainer = document.getElementById("corrected-questions-list");
+    listContainer.innerHTML = "";
+
+    let wrongTopics = [];
+
+    questions.forEach((q, idx) => {
+      const uAns = userAnswers[idx];
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "corrected-item";
+
+      let statusBadge = uAns.isCorrect 
+        ? '<span class="status-badge certo">✔ CERTO (+1,0 pt)</span>'
+        : '<span class="status-badge errado">✖ ERRADO (0,0 pt)</span>';
+
+      if (!uAns.isCorrect) wrongTopics.push(q.topic);
+
+      itemDiv.innerHTML = 
+        '<div class="corrected-item-head">' +
+          '<span>' + q.code + '</span>' +
+          statusBadge +
+        '</div>' +
+        '<p style="margin: 5px 0 10px 0;">' + q.text + '</p>' +
+        '<p style="font-size: 0.9rem; margin-bottom: 5px;">' +
+          '<b>Sua resposta:</b> ' + q.options[uAns.chosenOption] + (uAns.isCorrect ? ' ✔' : ' ✖') + '<br>' +
+          '<b>Gabarito oficial:</b> <span style="color: var(--success); font-weight: bold;">' + q.options[q.correct] + '</span>' +
+        '</p>' +
+        '<div class="calc-block"><b>Correção Passo a Passo na Vertical (Professor):</b>\n' + q.calc + '</div>';
+      
+      listContainer.appendChild(itemDiv);
+    });
+
+    const pedContainer = document.getElementById("pedagogical-content");
+    let pedHtml = "";
+
+    let listItems = "";
+    for (let i = 0; i < wrongTopics.length; i++) {
+      listItems += "<li>" + wrongTopics[i] + "</li>";
+    }
+
+    if (score === 5) {
+      pedHtml = '<p style="color: var(--success); font-weight: bold; margin-bottom: 5px;">Parabéns, ' + studentName + '! Você obteve a nota máxima (5,0 / 5,0).</p>' +
+      '<p>Demonstrou domínio pleno do Descritor D125_M, aplicando com precisão a Relação de Euler (V - A + F = 2) e a contagem de arestas pelas faces.</p>';
+    } else if (score >= 3) {
+      pedHtml = '<p style="color: var(--primary); font-weight: bold; margin-bottom: 5px;">Bom desempenho, ' + studentName + '! Nota: ' + finalScore.replace('.', ',') + ' / 5,0.</p>' +
+      '<p>Você compreendeu a estrutura principal da fórmula de Euler. Recomenda-se atenção especial nos seguintes pontos onde houve equívoco:</p>' +
+      '<ul>' + listItems + '</ul>';
+    } else {
+      pedHtml = '<p style="color: var(--error); font-weight: bold; margin-bottom: 5px;">Atenção para revisão, ' + studentName + '! Nota: ' + finalScore.replace('.', ',') + ' / 5,0.</p>' +
+      '<p>É necessário refazer os exercícios dos seguintes conteúdos para consolidar o descritor:</p>' +
+      '<ul>' + listItems + '</ul>' +
+      '<p><b>Orientação de Estudo:</b> Treine a montagem da equação V - A + F = 2 na vertical, substituindo os valores fornecidos um a um.</p>';
+    }
+
+    pedContainer.innerHTML = pedHtml;
+  }
+
+  // FUNÇÃO DE INTEGRAÇÃO COM O GOOGLE DRIVE VIA GOOGLE APPS SCRIPT
+  function savePdf() {
+    const btn = document.getElementById("btn-save-pdf");
+    if (btn) {
+      btn.innerText = "⏳ Gerando e enviando PDF para o Drive...";
+      btn.disabled = true;
+    }
+
+    // Cole aqui a URL gerada na implantação do seu Google Apps Script:
+    const scriptUrl = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+
+    const reportElement = document.getElementById("screen-result").innerHTML;
+
+    // Monta o documento HTML que o Google Apps Script converterá em PDF
+    const fullHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Prova Corrigida - ${studentName} - ${studentClass}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; color: #1e293b; background: #fff; }
+    .report-header { border-bottom: 2px solid #1e3a8a; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .report-header-title { font-size: 1.2rem; font-weight: bold; color: #1e3a8a; }
+    .report-stamp { border: 2px solid #1e3a8a; color: #1e3a8a; padding: 5px 12px; font-weight: bold; font-size: 0.85rem; border-radius: 4px; text-align: center; }
+    .student-card { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .corrected-item { border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #ffffff; page-break-inside: avoid; }
+    .corrected-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+    .status-badge.certo { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .status-badge.errado { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .calc-block { background: #f8fafc; border: 1px solid #cbd5e1; font-family: 'Courier New', Courier, monospace; padding: 10px 15px; border-radius: 6px; margin-top: 8px; white-space: pre-wrap; font-size: 0.9rem; color: #0f172a; }
+    .pedagogical-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin-top: 25px; }
+    .pedagogical-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
+    .no-print { display: none !important; }
+  </style>
+</head>
+<body>
+  <div style="max-width: 800px; margin: 0 auto;">
+    ${reportElement}
+  </div>
+</body>
+</html>`;
+
+    const payload = {
+      aluno: studentName,
+      turma: studentClass,
+      htmlContent: fullHtml
+    };
+
+    const formattedName = studentName.replace(/\s+/g, "_");
+    document.title = "Prova_Corrigida_" + formattedName + "_" + studentClass;
+
+    // Se o professor ainda não configurou o link da API
+    if (scriptUrl === "SUA_URL_DO_APPS_SCRIPT_AQUI") {
+      if (btn) {
+        btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
+        btn.disabled = false;
+      }
+      window.print();
+      return;
+    }
+
+    fetch(scriptUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(() => {
+      alert("✅ Prova corrigida enviada com sucesso em formato PDF para a pasta do Google Drive do professor!");
+      if (btn) {
+        btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
+        btn.disabled = false;
+      }
+      window.print();
+    }).catch(err => {
+      alert("Não foi possível conectar ao Drive automaticamente. A caixa de download local do PDF será aberta.");
+      if (btn) {
+        btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
+        btn.disabled = false;
+      }
+      window.print();
+    });
+  }
+</script>
+
+</body>
+</html>
