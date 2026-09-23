@@ -127,11 +127,6 @@
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="student-email">E-mail do Aluno/Responsável (para receber a cópia em PDF):</label>
-      <input type="email" id="student-email" placeholder="exemplo@email.com">
-    </div>
-
     <button class="btn no-print" onclick="toggleRevision()">📖 Abrir Revisão Teórica e Exemplo Resolvido</button>
     
     <div id="revision-content" class="revision-box">
@@ -305,7 +300,6 @@ Se V = 8 e F = 6:
   let score = 0;
   let studentName = "";
   let studentClass = "";
-  let studentEmail = "";
   let userAnswers = [];
 
   function toggleRevision() {
@@ -321,7 +315,6 @@ Se V = 8 e F = 6:
   function startQuiz() {
     studentName = document.getElementById("student-name").value.trim();
     studentClass = document.getElementById("student-class").value;
-    studentEmail = document.getElementById("student-email").value.trim();
 
     if (!studentName || !studentClass) {
       alert("Por favor, preencha seu nome e selecione sua turma antes de iniciar.");
@@ -414,8 +407,6 @@ Se V = 8 e F = 6:
     document.getElementById("report-date").innerText = now.toLocaleDateString('pt-BR');
     document.getElementById("res-name").innerText = studentName;
     document.getElementById("res-class").innerText = studentClass;
-    
-    document.getElementById("res-email-input").value = studentEmail;
 
     const finalScore = score.toFixed(1);
     document.getElementById("res-score-pts").innerText = finalScore.replace('.', ',');
