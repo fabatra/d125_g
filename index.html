@@ -460,7 +460,7 @@ Se V = 8 e F = 6:
     }
 
     // Cole aqui a URL gerada na implantação do seu Google Apps Script:
-    const scriptUrl = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbwh1Dkcv-HaByydsupR8hQDc6Pk6lGGLpOtiCr0K_D0ri4769ueQ2HOtPMcvZaDgRg7/exec";
 
     const reportElement = document.getElementById("screen-result").innerHTML;
 
@@ -504,7 +504,7 @@ Se V = 8 e F = 6:
     document.title = "Prova_Corrigida_" + formattedName + "_" + studentClass;
 
     // Se o professor ainda não configurou o link da API
-    if (scriptUrl === "SUA_URL_DO_APPS_SCRIPT_AQUI") {
+    if (scriptUrl === "https://script.google.com/macros/s/AKfycbwh1Dkcv-HaByydsupR8hQDc6Pk6lGGLpOtiCr0K_D0ri4769ueQ2HOtPMcvZaDgRg7/exec") {
       if (btn) {
         btn.innerText = "📄 Salvar / Imprimir Prova Corrigida (PDF)";
         btn.disabled = false;
