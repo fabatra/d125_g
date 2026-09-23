@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+n<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -23,9 +23,9 @@
     h1 { color: var(--primary); font-size: 1.5rem; text-align: center; margin-bottom: 5px; }
     p.subtitle { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 0; margin-bottom: 25px; }
     
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 18px; }
     label { font-weight: bold; display: block; margin-bottom: 6px; }
-    input[type="text"], select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+    input[type="text"], input[type="email"], select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
     
     .btn { background: var(--primary-light); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.2s; }
     .btn:hover { background: var(--primary); }
@@ -107,7 +107,7 @@
 <body>
 
 <div class="container">
-  <!-- TELA INICIAL: IDENTIFICAÇÃO DO ALUNO E TURMA -->
+  <!-- TELA INICIAL: IDENTIFICAÇÃO DO ALUNO E E-MAIL -->
   <div id="screen-start" class="step active">
     <h1>Avaliação D125_M: Poliedros</h1>
     <p class="subtitle">Identificar a relação entre o número de vértices, faces e/ou arestas de poliedros</p>
@@ -125,6 +125,11 @@
         <option value="3M2">3M2</option>
         <option value="3M3">3M3</option>
       </select>
+    </div>
+
+    <div class="form-group">
+      <label for="student-email">E-mail do Aluno/Responsável (para receber a cópia da prova em PDF):</label>
+      <input type="email" id="student-email" placeholder="exemplo@email.com">
     </div>
 
     <button class="btn no-print" onclick="toggleRevision()">📖 Abrir Revisão Teórica e Exemplo Resolvido</button>
@@ -229,9 +234,14 @@ Se V = 8 e F = 6:
       <div id="pedagogical-content"></div>
     </div>
 
-    <!-- PAINEL DE AÇÕES DE SALVAMENTO -->
+    <!-- CAMPO E BOTÃO DE ENVIO POR E-MAIL E DRIVE -->
     <div class="action-card no-print">
-      <button id="btn-save-drive" class="btn" onclick="saveToDrive()">📄 Salvar no Google Drive do Professor (PDF)</button>
+      <div class="form-group">
+        <label for="res-email-input">E-mail para Envio do PDF:</label>
+        <input type="email" id="res-email-input" placeholder="exemplo@email.com">
+      </div>
+
+      <button id="btn-send-email" class="btn" onclick="sendEvaluation()">✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)</button>
       <button class="btn btn-secondary" onclick="window.print()" style="margin-top: 10px;">🖨️ Imprimir / Salvar Cópia Local em PDF</button>
       <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 10px;">🔄 Refazer Avaliação</button>
     </div>
@@ -239,7 +249,7 @@ Se V = 8 e F = 6:
 </div>
 
 <script>
-  // LINK DA PASTA DO GOOGLE DRIVE EMBUTIDO DIRETA E FIXAMENTE
+  // LINK DA PASTA DO GOOGLE DRIVE
   const DESTINATION_DRIVE_FOLDER = "https://drive.google.com/drive/folders/18AFpKRG4Mk5jdZgnCdoylEi9D1GqhsSu";
 
   const questions = [
@@ -295,6 +305,7 @@ Se V = 8 e F = 6:
   let score = 0;
   let studentName = "";
   let studentClass = "";
+  let studentEmail = "";
   let userAnswers = [];
 
   function toggleRevision() {
@@ -310,6 +321,7 @@ Se V = 8 e F = 6:
   function startQuiz() {
     studentName = document.getElementById("student-name").value.trim();
     studentClass = document.getElementById("student-class").value;
+    studentEmail = document.getElementById("student-email").value.trim();
 
     if (!studentName || !studentClass) {
       alert("Por favor, preencha seu nome e selecione sua turma antes de iniciar.");
@@ -403,6 +415,9 @@ Se V = 8 e F = 6:
     document.getElementById("res-name").innerText = studentName;
     document.getElementById("res-class").innerText = studentClass;
     
+    // Preenche a caixa do e-mail no resultado com o que foi preenchido no início
+    document.getElementById("res-email-input").value = studentEmail;
+
     const finalScore = score.toFixed(1);
     document.getElementById("res-score-pts").innerText = finalScore.replace('.', ',');
     const percent = Math.round((score / questions.length) * 100);
@@ -464,16 +479,18 @@ Se V = 8 e F = 6:
     pedContainer.innerHTML = pedHtml;
   }
 
-  // ENVIA O CONTEÚDO FORMATADO EM PDF PARA A PASTA DO GOOGLE DRIVE
-  function saveToDrive() {
-    const btn = document.getElementById("btn-save-drive");
+  // ENVIA O CONTEÚDO FORMATADO EM PDF PARA O E-MAIL E DRIVE
+  function sendEvaluation() {
+    const targetEmail = document.getElementById("res-email-input").value.trim();
+
+    const btn = document.getElementById("btn-send-email");
     if (btn) {
-      btn.innerText = "⏳ Enviando PDF para a sua pasta do Drive...";
+      btn.innerText = "⏳ Gerando PDF e enviando...";
       btn.disabled = true;
     }
 
     // 🔴 COLE AQUI A URL GERADA NA IMPLANTAÇÃO DO SEU GOOGLE APPS SCRIPT (terminada em /exec):
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxCJKVP13IBTSY7hzef10-aCNib7qUPmwc4SOKlJAUc/dev";
+    const scriptUrl = "SUA_URL_DO_APPS_SCRIPT_AQUI";
 
     const reportElement = document.getElementById("screen-result").innerHTML;
 
@@ -509,6 +526,8 @@ Se V = 8 e F = 6:
     const payload = {
       aluno: studentName,
       turma: studentClass,
+      email: targetEmail,
+      nota: score.toFixed(1).replace('.', ','),
       folderUrl: DESTINATION_DRIVE_FOLDER,
       htmlContent: fullHtml
     };
@@ -516,10 +535,10 @@ Se V = 8 e F = 6:
     const formattedName = studentName.replace(/\s+/g, "_");
     document.title = "Prova_Corrigida_" + formattedName + "_" + studentClass;
 
-    if (scriptUrl === "https://script.google.com/macros/s/AKfycbxCJKVP13IBTSY7hzef10-aCNib7qUPmwc4SOKlJAUc/dev") {
-      alert("Lembre-se de substituir 'https://script.google.com/macros/s/AKfycbxCJKVP13IBTSY7hzef10-aCNib7qUPmwc4SOKlJAUc/dev' na função saveToDrive() pela URL do seu Google Apps Script.");
+    if (scriptUrl === "SUA_URL_DO_APPS_SCRIPT_AQUI") {
+      alert("Substitua 'SUA_URL_DO_APPS_SCRIPT_AQUI' no código HTML pelo link do seu Google Apps Script para ativar o envio por e-mail e salvamento no Drive.");
       if (btn) {
-        btn.innerText = "📄 Salvar no Google Drive do Professor (PDF)";
+        btn.innerText = "✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)";
         btn.disabled = false;
       }
       window.print();
@@ -532,15 +551,19 @@ Se V = 8 e F = 6:
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert("✅ Prova enviada com sucesso em formato PDF para a pasta do Google Drive do professor!");
+      let msg = "✅ Prova salva com sucesso na pasta do Google Drive!";
+      if (targetEmail) {
+        msg += "\n✉️ Uma cópia em PDF também foi enviada para o e-mail: " + targetEmail;
+      }
+      alert(msg);
       if (btn) {
-        btn.innerText = "📄 Salvar no Google Drive do Professor (PDF)";
+        btn.innerText = "✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)";
         btn.disabled = false;
       }
     }).catch(err => {
-      alert("Ocorreu uma falha ao conectar ao Google Drive. A caixa de download local será aberta.");
+      alert("Ocorreu uma falha na conexão. A janela de impressão local do PDF será aberta.");
       if (btn) {
-        btn.innerText = "📄 Salvar no Google Drive do Professor (PDF)";
+        btn.innerText = "✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)";
         btn.disabled = false;
       }
       window.print();
