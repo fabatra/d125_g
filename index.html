@@ -107,7 +107,7 @@
 <body>
 
 <div class="container">
-  <!-- TELA INICIAL: IDENTIFICAÇÃO DO ALUNO E E-MAIL -->
+  <!-- TELA INICIAL: IDENTIFICAÇÃO DO ALUNO -->
   <div id="screen-start" class="step active">
     <h1>Avaliação D125_M: Poliedros</h1>
     <p class="subtitle">Identificar a relação entre o número de vértices, faces e/ou arestas de poliedros</p>
@@ -128,7 +128,7 @@
     </div>
 
     <div class="form-group">
-      <label for="student-email">E-mail do Aluno/Responsável (para receber a cópia da prova em PDF):</label>
+      <label for="student-email">E-mail do Aluno/Responsável (para receber a cópia em PDF):</label>
       <input type="email" id="student-email" placeholder="exemplo@email.com">
     </div>
 
@@ -208,7 +208,7 @@ Se V = 8 e F = 6:
     <button id="btn-next" class="btn no-print" style="margin-top: 15px; display: none;" onclick="nextQuestion()">Próxima Questão ➔</button>
   </div>
 
-  <!-- TELA DE RESULTADO / PROVA CORRIGIDA PELO PROFESSOR -->
+  <!-- TELA DE RESULTADO / PROVA CORRIGIDA -->
   <div id="screen-result" class="step">
     <div class="report-header">
       <div>
@@ -234,14 +234,14 @@ Se V = 8 e F = 6:
       <div id="pedagogical-content"></div>
     </div>
 
-    <!-- CAMPO E BOTÃO DE ENVIO POR E-MAIL E DRIVE -->
+    <!-- BOTÕES DE ENVIO -->
     <div class="action-card no-print">
       <div class="form-group">
-        <label for="res-email-input">E-mail para Envio do PDF:</label>
+        <label for="res-email-input">E-mail para Envio da Cópia da Prova (Opcional):</label>
         <input type="email" id="res-email-input" placeholder="exemplo@email.com">
       </div>
 
-      <button id="btn-send-email" class="btn" onclick="sendEvaluation()">✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)</button>
+      <button id="btn-send-email" class="btn" onclick="sendEvaluation()">📄 Enviar Prova Corrigida (PDF)</button>
       <button class="btn btn-secondary" onclick="window.print()" style="margin-top: 10px;">🖨️ Imprimir / Salvar Cópia Local em PDF</button>
       <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 10px;">🔄 Refazer Avaliação</button>
     </div>
@@ -249,7 +249,7 @@ Se V = 8 e F = 6:
 </div>
 
 <script>
-  // LINK DA PASTA DO GOOGLE DRIVE
+  // LINK FIXO DA SUA PASTA DO GOOGLE DRIVE
   const DESTINATION_DRIVE_FOLDER = "https://drive.google.com/drive/folders/18AFpKRG4Mk5jdZgnCdoylEi9D1GqhsSu";
 
   const questions = [
@@ -478,7 +478,7 @@ Se V = 8 e F = 6:
     pedContainer.innerHTML = pedHtml;
   }
 
-  // ENVIA O CONTEÚDO FORMATADO EM PDF PARA O E-MAIL E DRIVE
+  // ENVIA O CONTEÚDO FORMATADO EM PDF PARA O GOOGLE DRIVE E E-MAIL
   function sendEvaluation() {
     const targetEmail = document.getElementById("res-email-input").value.trim();
 
@@ -488,7 +488,6 @@ Se V = 8 e F = 6:
       btn.disabled = true;
     }
 
-    // URL oficial de execução do seu Google Apps Script (/exec)
     const scriptUrl = "https://script.google.com/macros/s/AKfycbwh1Dkcv-HaByydsupR8hQDc6Pk6lGGLpOtiCr0K_D0ri4769ueQ2HOtPMcvZaDgRg7/exec";
 
     const reportElement = document.getElementById("screen-result").innerHTML;
@@ -546,13 +545,13 @@ Se V = 8 e F = 6:
       }
       alert(msg);
       if (btn) {
-        btn.innerText = "✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)";
+        btn.innerText = "📄 Enviar Prova Corrigida (PDF)";
         btn.disabled = false;
       }
     }).catch(err => {
       alert("Ocorreu uma falha na conexão. A janela de impressão local do PDF será aberta.");
       if (btn) {
-        btn.innerText = "✉️ Enviar Avaliação por E-mail e Salvar no Drive (PDF)";
+        btn.innerText = "📄 Enviar Prova Corrigida (PDF)";
         btn.disabled = false;
       }
       window.print();
