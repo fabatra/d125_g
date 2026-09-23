@@ -71,7 +71,7 @@
     .progress { height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
     .progress-bar { height: 100%; background: var(--primary-light); width: 0%; transition: width 0.3s; }
 
-    /* Estilos da Prova Corrigida do Professor */
+    /* Estilos da Prova Corrigida */
     .report-header { border-bottom: 2px solid var(--primary); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     .report-header-title { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
     .report-stamp { border: 2px solid var(--primary); color: var(--primary); padding: 5px 12px; font-weight: bold; font-size: 0.85rem; border-radius: 4px; text-align: center; }
@@ -88,7 +88,7 @@
     .pedagogical-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin-top: 25px; }
     .pedagogical-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
 
-    .drive-save-card {
+    .action-card {
       background: #f8fafc;
       border: 1px solid var(--border);
       padding: 18px;
@@ -97,7 +97,7 @@
     }
 
     @media print {
-      .btn, .no-print, .progress, .drive-save-card { display: none !important; }
+      .btn, .no-print, .progress, .action-card { display: none !important; }
       body { background: white; padding: 0; color: #000; }
       .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
       .corrected-item { page-break-inside: avoid; }
@@ -229,21 +229,19 @@ Se V = 8 e F = 6:
       <div id="pedagogical-content"></div>
     </div>
 
-    <!-- CAMPO DE LINK DO DRIVE E BOTÃO DE SALVAMENTO -->
-    <div class="drive-save-card no-print">
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label for="drive-url-input"><b>Link da pasta do Google Drive (Destino do PDF):</b></label>
-        <input type="text" id="drive-url-input" placeholder="Cole aqui o link da pasta (ex: https://drive.google.com/drive/folders/...)">
-      </div>
-      
-      <button id="btn-save-drive" class="btn" onclick="saveToDrive()">📄 Salvar no Google Drive (PDF)</button>
-      <button class="btn btn-secondary" onclick="window.print()" style="margin-top: 10px;">🖨️ Imprimir / Salvar Localmente</button>
+    <!-- PAINEL DE AÇÕES DE SALVAMENTO -->
+    <div class="action-card no-print">
+      <button id="btn-save-drive" class="btn" onclick="saveToDrive()">📄 Salvar no Google Drive do Professor (PDF)</button>
+      <button class="btn btn-secondary" onclick="window.print()" style="margin-top: 10px;">🖨️ Imprimir / Salvar Cópia Local em PDF</button>
       <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 10px;">🔄 Refazer Avaliação</button>
     </div>
   </div>
 </div>
 
 <script>
+  // LINK DA PASTA DO GOOGLE DRIVE EMBUTIDO DIRETA E FIXAMENTE
+  const DESTINATION_DRIVE_FOLDER = "https://drive.google.com/drive/folders/18AFpKRG4Mk5jdZgnCdoylEi9D1GqhsSu";
+
   const questions = [
     {
       id: 1,
@@ -466,25 +464,16 @@ Se V = 8 e F = 6:
     pedContainer.innerHTML = pedHtml;
   }
 
-  // LE O CAMPO DO LINK DO DRIVE E ENVIA O CONTEÚDO PARA CONVERSÃO EM PDF
+  // ENVIA O CONTEÚDO FORMATADO EM PDF PARA A PASTA DO GOOGLE DRIVE
   function saveToDrive() {
-    const driveInput = document.getElementById("drive-url-input");
-    const driveUrl = driveInput ? driveInput.value.trim() : "";
-
-    if (!driveUrl) {
-      alert("Por favor, cole o link da sua pasta do Google Drive no campo acima antes de clicar em salvar.");
-      if (driveInput) driveInput.focus();
-      return;
-    }
-
     const btn = document.getElementById("btn-save-drive");
     if (btn) {
-      btn.innerText = "⏳ Enviando para o Google Drive...";
+      btn.innerText = "⏳ Enviando PDF para a sua pasta do Drive...";
       btn.disabled = true;
     }
 
-    // Cole abaixo a URL gerada na implantação do seu Google Apps Script (terminada em /exec):
-    const scriptUrl = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+    // 🔴 COLE AQUI A URL GERADA NA IMPLANTAÇÃO DO SEU GOOGLE APPS SCRIPT (terminada em /exec):
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxCJKVP13IBTSY7hzef10-aCNib7qUPmwc4SOKlJAUc/dev";
 
     const reportElement = document.getElementById("screen-result").innerHTML;
 
@@ -507,7 +496,7 @@ Se V = 8 e F = 6:
     .calc-block { background: #f8fafc; border: 1px solid #cbd5e1; font-family: 'Courier New', Courier, monospace; padding: 10px 15px; border-radius: 6px; margin-top: 8px; white-space: pre-wrap; font-size: 0.9rem; color: #0f172a; }
     .pedagogical-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin-top: 25px; }
     .pedagogical-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
-    .no-print, .drive-save-card { display: none !important; }
+    .no-print, .action-card { display: none !important; }
   </style>
 </head>
 <body>
@@ -520,17 +509,17 @@ Se V = 8 e F = 6:
     const payload = {
       aluno: studentName,
       turma: studentClass,
-      folderUrl: driveUrl,
+      folderUrl: DESTINATION_DRIVE_FOLDER,
       htmlContent: fullHtml
     };
 
     const formattedName = studentName.replace(/\s+/g, "_");
     document.title = "Prova_Corrigida_" + formattedName + "_" + studentClass;
 
-    if (scriptUrl === "SUA_URL_DO_APPS_SCRIPT_AQUI") {
-      alert("Lembre-se de substituir 'SUA_URL_DO_APPS_SCRIPT_AQUI' no código HTML pela URL gerada no seu Google Apps Script.");
+    if (scriptUrl === "https://script.google.com/macros/s/AKfycbxCJKVP13IBTSY7hzef10-aCNib7qUPmwc4SOKlJAUc/dev") {
+      alert("Lembre-se de substituir 'https://script.google.com/macros/s/AKfycbxCJKVP13IBTSY7hzef10-aCNib7qUPmwc4SOKlJAUc/dev' na função saveToDrive() pela URL do seu Google Apps Script.");
       if (btn) {
-        btn.innerText = "📄 Salvar no Google Drive (PDF)";
+        btn.innerText = "📄 Salvar no Google Drive do Professor (PDF)";
         btn.disabled = false;
       }
       window.print();
@@ -543,15 +532,15 @@ Se V = 8 e F = 6:
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert("✅ Prova enviada com sucesso em formato PDF para a pasta do Google Drive informada!");
+      alert("✅ Prova enviada com sucesso em formato PDF para a pasta do Google Drive do professor!");
       if (btn) {
-        btn.innerText = "📄 Salvar no Google Drive (PDF)";
+        btn.innerText = "📄 Salvar no Google Drive do Professor (PDF)";
         btn.disabled = false;
       }
     }).catch(err => {
-      alert("Ocorreu uma falha ao conectar ao Google Drive. A janela para salvar localmente será aberta.");
+      alert("Ocorreu uma falha ao conectar ao Google Drive. A caixa de download local será aberta.");
       if (btn) {
-        btn.innerText = "📄 Salvar no Google Drive (PDF)";
+        btn.innerText = "📄 Salvar no Google Drive do Professor (PDF)";
         btn.disabled = false;
       }
       window.print();
